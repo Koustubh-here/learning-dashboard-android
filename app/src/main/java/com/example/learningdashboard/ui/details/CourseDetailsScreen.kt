@@ -39,7 +39,7 @@ fun CourseDetailsScreen(
             when (val s = state) {
                 DetailsUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 DetailsUiState.NotFound -> Text("Course not found", Modifier.align(Alignment.Center))
-                is DetailsUiState.Success -> Content(s.course, vm::setLessonCompleted)
+                is DetailsUiState.Success -> Content(s.course, vm::markCompleted)
             }
         }
     }
@@ -47,21 +47,15 @@ fun CourseDetailsScreen(
 
 // Rows are intentionally plain (no per-row animation or enter delay) so the list is on screen instantly.
 @Composable
-private fun Content(course: Course, onSetCompleted: (Int, Boolean) -> Unit) {
+private fun Content(course: Course, onComplete: (Int) -> Unit) {
     LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
         item(key = "summary") { Summary(course) }
         item(key = "header") {
-            Text(
-                "Lessons", style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
-            )
+            Text("Lessons", style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp))
         }
         itemsIndexed(course.lessons, key = { _, l -> l.id }) { index, lesson ->
-            LessonRow(
-                number = index + 1,
-                lesson = lesson,
-                onToggle = { onSetCompleted(lesson.id, !lesson.isCompleted) }
-            )
+            LessonRow(index + 1, lesson, onComplete = { onComplete(lesson.id) })
         }
     }
 }
@@ -72,11 +66,9 @@ private fun Summary(course: Course) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text("${course.progress}%", style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.width(8.dp))
-            Text(
-                "complete", style = MaterialTheme.typography.bodyMedium,
+            Text("complete", style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+                modifier = Modifier.padding(bottom = 4.dp))
         }
         Spacer(Modifier.height(10.dp))
         CourseProgressBar(course.progress, color = accentFor(course.id))
@@ -93,7 +85,7 @@ private fun Summary(course: Course) {
 }
 
 @Composable
-private fun LessonRow(number: Int, lesson: Lesson, onToggle: () -> Unit) {
+private fun LessonRow(number: Int, lesson: Lesson, onComplete: () -> Unit) {
     Column {
         Row(
             Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
@@ -104,18 +96,17 @@ private fun LessonRow(number: Int, lesson: Lesson, onToggle: () -> Unit) {
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
                 Text(lesson.title, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    "Lesson $number", style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("Lesson $number", style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            TextButton(onClick = onToggle) {
-                Text(if (lesson.isCompleted) "Undo" else "Mark complete")
+            if (lesson.isCompleted) {
+                Text("Completed", style = MaterialTheme.typography.bodySmall, color = SuccessGreen,
+                    modifier = Modifier.padding(end = 8.dp))
+            } else {
+                TextButton(onClick = onComplete) { Text("Mark complete") }
             }
         }
-        Box(
-            Modifier.padding(start = 56.dp).fillMaxWidth().height(1.dp)
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.6f))
-        )
+        Box(Modifier.padding(start = 56.dp).fillMaxWidth().height(1.dp)
+            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)))
     }
 }
