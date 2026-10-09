@@ -4,7 +4,7 @@ Kotlin · Jetpack Compose · MVVM · Room · Coroutines/Flow
 
 | | |
 |---|---|
-| **Demo video (2 min)** | [Watch on Google Drive](PASTE_GOOGLE_DRIVE_LINK_HERE) |
+| **Demo video (2 min)** | [Watch on Google Drive](https://drive.google.com/file/d/1EFlc6xHTNkKc1Lo5g3OtwF1R-QlEXUsY/view?usp=sharing) |
 | **APK** | [Download from GitHub Releases](https://github.com/Koustubh-here/learning-dashboard-android/releases/download/v1.0/learning-dashboard.apk) |
 
 **Demo login:** `test@example.com` / `password123` (mocked API)
